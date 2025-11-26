@@ -11,7 +11,7 @@ import java.net.URL;
 
 // ====================== AI Helper Simple =========================
  class SimpleAI {
-    static String API_KEY = "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";
+    static String API_KEY = "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";
 
     public static String summarize(String text) throws Exception {
 
@@ -46,6 +46,8 @@ import java.net.URL;
         return result.substring(start, end);
     }
 }
+
+
 // ====================== DRAWING PANEL =========================
 class DrawArea extends JPanel {
 
@@ -100,6 +102,7 @@ class MyNotePad extends JFrame implements ActionListener {
 
     JScrollPane jsp;
     JSplitPane split;
+    //JLabel status;
     DrawArea drawPanel;
 
     boolean isWrapped = false;
@@ -149,10 +152,11 @@ class MyNotePad extends JFrame implements ActionListener {
         courier = new MenuItem("Courier New");
         timesNR = new MenuItem("Times New Roman");
 
-        red = new MenuItem("Red");
-        blue = new MenuItem("Blue");
-        green = new MenuItem("Green");
-        black = new MenuItem("Black");
+    red = new MenuItem("Red Text");
+blue = new MenuItem("Blue Text");
+green = new MenuItem("Green Text");
+black = new MenuItem("Black Text");
+
 
         smallBrush = new MenuItem("Small Brush");
         mediumBrush = new MenuItem("Medium Brush");
@@ -197,6 +201,9 @@ class MyNotePad extends JFrame implements ActionListener {
         split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, jsp, drawPanel);
         split.setDividerLocation(900);
         add(split);
+//         status = new JLabel("");
+// add(status, BorderLayout.SOUTH);
+
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
@@ -212,6 +219,25 @@ class MyNotePad extends JFrame implements ActionListener {
         } catch (Exception e) {}
     }
 
+public void openSummaryWindow(String summaryText) {
+
+    JDialog win = new JDialog(this, "AI Summary Window", true);
+    win.setSize(450, 300);            // medium window
+    win.setResizable(false);          // fixed size
+    win.setLocationRelativeTo(this);  // center
+
+    JTextArea area = new JTextArea();
+    area.setText(summaryText);
+    area.setEditable(false);
+    area.setWrapStyleWord(true);
+    area.setLineWrap(true);
+
+    JScrollPane scroll = new JScrollPane(area);
+
+    win.add(scroll);
+
+    win.setVisible(true);
+}
 
     public void actionPerformed(ActionEvent e) {
         String cmd = e.getActionCommand();
@@ -219,16 +245,38 @@ class MyNotePad extends JFrame implements ActionListener {
         try {
             switch (cmd) {
 
-                case "Summarize Text":
-                    String selected = jta.getSelectedText();
-                    if (selected == null || selected.isEmpty()) {
-                        JOptionPane.showMessageDialog(this, "Select text first!");
-                        break;
-                    }
-                    JOptionPane.showMessageDialog(this, "AI Working...");
-                    String summary = SimpleAI.summarize(selected);
-                    JOptionPane.showMessageDialog(this, "Summary:\n" + summary);
-                    break;
+                // case "Summarize Text":
+                //     String selected = jta.getSelectedText();
+                //     if (selected == null || selected.isEmpty()) {
+                //         JOptionPane.showMessageDialog(this, "Select text first!");
+                //         break;
+                //     }
+                //     JOptionPane.showMessageDialog(this, "AI Working...");
+                //     String summary = SimpleAI.summarize(selected);
+                //     JOptionPane.showMessageDialog(this, "Summary:\n" + summary);
+                //     break;
+           case "Summarize Text":
+    String selected = jta.getSelectedText();
+
+    if (selected == null || selected.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Select text first!");
+        break;
+    }
+
+    try {
+        String summary = SimpleAI.summarize(selected);
+
+        // Short clean text for summary
+        if (summary.length() > 350) {
+            summary = summary.substring(0, 350) + "...";
+        }
+
+        openSummaryWindow(summary);
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "AI Error!");
+    }
+    break;
 
                 case "New": jta.setText(""); currentFile = null; break;
 
@@ -283,10 +331,12 @@ class MyNotePad extends JFrame implements ActionListener {
                 case "Courier New": jta.setFont(new Font("Courier New", Font.PLAIN, fontSize)); break;
                 case "Times New Roman": jta.setFont(new Font("Times New Roman", Font.PLAIN, fontSize)); break;
 
-                case "Red": drawPanel.brushColor = Color.RED; break;
-                case "Blue": drawPanel.brushColor = Color.BLUE; break;
-                case "Green": drawPanel.brushColor = Color.GREEN; break;
-                case "Black": drawPanel.brushColor = Color.BLACK; break;
+            
+case "Red Text": jta.setForeground(Color.RED); break;
+case "Blue Text": jta.setForeground(Color.BLUE); break;
+case "Green Text": jta.setForeground(Color.GREEN); break;
+case "Black Text": jta.setForeground(Color.BLACK); break;
+
 
                 case "Small Brush": drawPanel.brushSize = 5; break;
                 case "Medium Brush": drawPanel.brushSize = 12; break;
@@ -305,6 +355,11 @@ class MyNotePad extends JFrame implements ActionListener {
                     break;
 
                 case "Exit": System.exit(0); break;
+                case "Red": drawPanel.brushColor = Color.RED; break;
+case "Blue": drawPanel.brushColor = Color.BLUE; break;
+case "Green": drawPanel.brushColor = Color.GREEN; break;
+case "Black": drawPanel.brushColor = Color.BLACK; break;
+
             }
 
         } catch (Exception ex) {
@@ -319,7 +374,10 @@ public class NotePad {
     public static void main(String[] args) {
         MyNotePad np = new MyNotePad("AI Notepad + Drawing");
         np.setVisible(true);
-        np.setSize(1400, 700);
-        np.setLocation(50, 50);
+        np.setSize(1200, 700);
+np.setLocation(50, 50);
+
+        // np.setSize(1400, 700);
+        // np.setLocation(50, 50);
     }
 }
